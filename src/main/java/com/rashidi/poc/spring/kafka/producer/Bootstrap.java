@@ -7,19 +7,22 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.time.Instant;
 import java.util.Collections;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public interface Bootstrap {
   static void main(String[] args) throws InterruptedException {
     ApplicationContext context = new AnnotationConfigApplicationContext("com.rashidi.poc.spring.kafka.producer");
     EventProducer producer = context.getBean(EventProducer.class);
 
-    Event event = new Event.EventBuilder(UUID.randomUUID().toString())
+    Event adminEvent = new Event.EventBuilder(UUID.randomUUID().toString())
       .withTimestamp(Instant.now())
-      .withParams(Collections.singletonMap("action", "start"))
+      .withParams(Collections.singletonMap("type", "admin"))
       .build();
+    producer.publish(adminEvent);
 
-    producer.publish(event);
-    TimeUnit.SECONDS.sleep(2);
+    Event userEvent = new Event.EventBuilder(UUID.randomUUID().toString())
+      .withTimestamp(Instant.now())
+      .withParams(Collections.singletonMap("type", "user"))
+      .build();
+    producer.publish(userEvent);
   }
 }
